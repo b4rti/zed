@@ -40,6 +40,7 @@ pub const TUI = struct {
             }
 
             // UP -> UP
+            // if (std.mem.eql(u8, keys[0..3], "\xB1\x5B\x41")) {
             if (keys[0] == 0x1B and keys[1] == 0x5B and keys[2] == 0x41) {
                 try self.tty.moveCursorUp(1);
                 continue;

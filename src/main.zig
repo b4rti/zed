@@ -1,14 +1,13 @@
 const std = @import("std");
-const print = std.debug.print;
-const tty = @import("tty.zig");
-const tui = @import("tui.zig");
+const TTY = @import("tty.zig").TTY;
+const TUI = @import("tui.zig").TUI;
 
 pub fn main() !void {
-    var zed_tty = try tty.TTY.init();
-    defer zed_tty.deinit();
+    var tty = try TTY.init();
+    defer tty.deinit();
 
-    var zed_tui = tui.TUI.init(zed_tty);
-    defer zed_tui.deinit();
+    var tui = TUI.init(tty);
+    defer tui.deinit();
 
-    try zed_tui.loop();
+    try tui.loop();
 }
