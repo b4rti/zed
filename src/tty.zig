@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub const TTY = struct {
     tty: std.fs.File,
+    reader: std.fs.File.Reader,
     writer: std.fs.File.Writer,
     previous_termios: std.os.system.termios,
     current_termios: std.os.system.termios,
@@ -11,6 +12,7 @@ pub const TTY = struct {
 
         var new_tty = TTY{
             .tty = tty_file,
+            .reader = tty_file.reader(),
             .writer = tty_file.writer(),
             .previous_termios = try std.os.tcgetattr(tty_file.handle),
             .current_termios = try std.os.tcgetattr(tty_file.handle),
@@ -93,6 +95,19 @@ pub const TTY = struct {
         };
     }
 
+    pub inline fn read(self: *TTY, data: []u8) !usize {
+        return try self.reader.read(data);
+    }
+
+    pub inline fn write(self: *TTY, data: []const u8) !usize {
+        try self.writeAll(data);
+        return data.len;
+    }
+
+    pub inline fn print(self: *TTY, comptime fmt: []const u8, args: anytype) !void {
+        try self.writeFmt(fmt, args);
+    }
+
     pub inline fn writeByte(self: *TTY, c: u8) !void {
         try self.writer.writeByte(c);
     }
@@ -146,10 +161,6 @@ pub const TTY = struct {
 
     pub inline fn newLine(self: *TTY) !void {
         try self.writer.writeAll("\x1B[K\x1B[E");
-    }
-
-    pub inline fn backspace(self: *TTY) !void {
-        try self.writer.writeAll("\x08 \x08");
     }
 
     pub inline fn clearLine(self: *TTY) !void {
